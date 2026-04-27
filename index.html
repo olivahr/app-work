@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TimeTrack Pro</title>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0c0f17;
+            --bg-elevated: #111520;
+            --surface: #161b26;
+            --surface-hover: #1e2433;
+            --surface-active: #252d3d;
+            --border: #1f2937;
+            --border-light: #2d3748;
+            --text: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --primary: #3b82f6;
+            --primary-muted: #1d4ed8;
+            --success: #22c55e;
+            --success-bg: rgba(34, 197, 94, 0.1);
+            --danger: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.1);
+            --warning: #f59e0b;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.5);
+            --shadow-lg: 0 4px 12px rgba(0,0,0,0.4);
+        }
+        html { font-size: 16px; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.5;
+            -webkit-font-smoothing: antialiased; overflow-x: hidden;
+        }
+        .app { max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+
+        /* Header */
+        .header {
+            padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;
+            background: var(--bg-elevated); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50;
+        }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo-icon {
+            width: 36px; height: 36px; background: var(--primary); border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center; font-size: 18px;
+        }
+        .logo-text { font-weight: 700; font-size: 1.1rem; letter-spacing: -0.3px; }
+        .status-pill {
+            display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px;
+            font-size: 0.78rem; font-weight: 600; transition: all 0.3s;
+        }
+        .status-pill.on { background: var(--success-bg); color: var(--success); border: 1px solid rgba(34,197,94,0.2); }
+        .status-pill.off { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(239,68,68,0.2); }
+        .status-dot { width: 7px; height: 7px; border-radius: 50%; }
+        .status-pill.on .status-dot { background: var(--success); animation: pulse 2s infinite; }
+        .status-pill.off .status-dot { background: var(--danger); }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+        /* Views */
+        .view { display: none; flex-direction: column; flex: 1; padding: 16px; gap: 12px; animation: fadeIn 0.25s ease; }
+        .view.active { display: flex; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            display: flex; background: var(--bg-elevated); border-top: 1px solid var(--border);
+            padding: 6px 0 10px; position: sticky; bottom: 0; z-index: 100;
+        }
+        .nav-item {
+            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+            padding: 6px; border: none; background: none; color: var(--text-muted);
+            font-family: inherit; font-size: 0.7rem; font-weight: 600; cursor: pointer; transition: 0.2s;
+        }
+        .nav-item.active { color: var(--primary); }
+        .nav-item .nav-icon { font-size: 1.4rem; }
+
+        /* Cards */
+        .card {
+            background: var(--surface); border-radius: var(--radius); padding: 20px;
+            border: 1px solid var(--border); box-shadow: var(--shadow);
+        }
+        .card-title {
+            font-size: 0.75rem; font-weight: 700; color: var(--text-secondary);
+            text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 14px;
+        }
+
+        /* Clock View */
+        .clock-display { text-align: center; padding: 8px 0 16px; }
+        .clock-time { font-size: 3rem; font-weight: 700; letter-spacing: -1px; font-variant-numeric: tabular-nums; line-height: 1; }
+        .clock-date { font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px; text-transform: capitalize; }
+
+        .timer-box {
+            background: var(--bg-elevated); border-radius: var(--radius); padding: 16px;
+            border: 1px solid var(--border); margin-bottom: 16px; text-align: center;
+        }
+        .timer-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 4px; }
+        .timer-display {
+            font-size: 2.2rem; font-weight: 700; color: var(--success); font-variant-numeric: tabular-nums;
+            letter-spacing: 2px; line-height: 1;
+        }
+        .timer-display.stopped { color: var(--text-muted); }
+
+        .btn-main {
+            width: 100%; padding: 16px; border: none; border-radius: var(--radius-sm);
+            font-family: inherit; font-size: 1rem; font-weight: 700; cursor: pointer;
+            transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-main:active { transform: scale(0.97); opacity: 0.9; }
+        .btn-in { background: var(--success); color: white; }
+        .btn-out { background: var(--danger); color: white; }
+        .btn-main:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+        .session-detail {
+            display: flex; justify-content: space-between; padding: 12px 0;
+            border-bottom: 1px solid var(--border); font-size: 0.9rem;
+        }
+        .session-detail:last-child { border-bottom: none; }
+        .session-detail-label { color: var(--text-secondary); font-weight: 500; }
+        .session-detail-value { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+        /* History View */
+        .week-group { margin-bottom: 14px; }
+        .week-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 14px; background: var(--bg-elevated); border-radius: var(--radius-sm);
+            margin-bottom: 8px; font-size: 0.8rem; border: 1px solid var(--border);
+        }
+        .week-header-title { font-weight: 700; }
+        .week-header-total { color: var(--primary); font-weight: 700; }
+
+        .day-card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+            margin-bottom: 6px; overflow: hidden;
+        }
+        .day-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 14px; cursor: pointer; transition: 0.2s;
+        }
+        .day-header:hover { background: var(--surface-hover); }
+        .day-info { display: flex; align-items: center; gap: 12px; }
+        .day-badge {
+            width: 40px; height: 40px; border-radius: var(--radius-sm); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; background: var(--bg-elevated); font-weight: 700;
+            border: 1px solid var(--border);
+        }
+        .day-badge-num { font-size: 1rem; line-height: 1; }
+        .day-badge-name { font-size: 0.6rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; }
+        .day-title { font-weight: 600; font-size: 0.9rem; }
+        .day-subtitle { font-size: 0.75rem; color: var(--text-secondary); }
+        .day-total { font-weight: 700; color: var(--success); font-variant-numeric: tabular-nums; font-size: 0.95rem; }
+        .day-sessions { display: none; padding: 0 14px 12px; }
+        .day-sessions.open { display: block; animation: slideDown 0.2s ease; }
+        @keyframes slideDown { from{opacity:0;max-height:0} to{opacity:1;max-height:500px} }
+
+        .session-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem;
+        }
+        .session-row:last-child { border-bottom: none; }
+        .session-times { display: flex; align-items: center; gap: 8px; color: var(--text-secondary); }
+        .session-times .arrow { color: var(--primary); }
+        .session-dur { font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+
+        .empty-state { text-align: center; padding: 50px 20px; color: var(--text-muted); }
+        .empty-state-icon { font-size: 3rem; margin-bottom: 12px; opacity: 0.5; }
+
+        /* Report View */
+        .report-textarea {
+            width: 100%; min-height: 320px; background: var(--bg-elevated); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); padding: 16px; color: var(--text); font-family: 'SF Mono', 'Consolas', monospace;
+            font-size: 0.82rem; line-height: 1.7; resize: none; outline: none;
+        }
+        .report-textarea:focus { border-color: var(--primary); }
+        .input-phone {
+            width: 100%; padding: 14px; background: var(--bg-elevated); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); color: var(--text); font-family: inherit; font-size: 0.95rem;
+            outline: none; margin-bottom: 10px;
+        }
+        .input-phone:focus { border-color: var(--primary); }
+        .input-phone::placeholder { color: var(--text-muted); }
+        .btn-whatsapp {
+            width: 100%; padding: 16px; background: #128c7e; color: white; border: none;
+            border-radius: var(--radius-sm); font-family: inherit; font-size: 1rem; font-weight: 700;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: 0.2s;
+        }
+        .btn-whatsapp:hover { background: #075e54; }
+        .btn-whatsapp:active { transform: scale(0.97); }
+        .btn-secondary {
+            width: 100%; padding: 14px; background: transparent; color: var(--text-secondary);
+            border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: inherit;
+            font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 8px;
+        }
+        .btn-secondary:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-bg); }
+
+        /* Toast */
+        .toast-container {
+            position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 1000;
+            display: flex; flex-direction: column; gap: 8px; pointer-events: none; width: 90%; max-width: 380px;
+        }
+        .toast {
+            padding: 14px 18px; border-radius: var(--radius-sm); color: white; font-size: 0.88rem;
+            font-weight: 600; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 10px;
+            animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards; pointer-events: auto;
+        }
+        .toast.ok { background: var(--success); }
+        .toast.err { background: var(--danger); }
+        .toast.info { background: var(--primary); }
+        @keyframes toastIn { from{opacity:0;transform:translateY(-12px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes toastOut { from{opacity:1;transform:translateY(0)} to{opacity:0;transform:translateY(-12px)} }
+
+        /* Modal */
+        .modal-bg {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex;
+            align-items: center; justify-content: center; z-index: 2000; opacity: 0;
+            visibility: hidden; transition: 0.2s; padding: 20px;
+        }
+        .modal-bg.show { opacity: 1; visibility: visible; }
+        .modal-box {
+            background: var(--surface); border-radius: var(--radius); padding: 24px;
+            width: 100%; max-width: 340px; border: 1px solid var(--border); transform: scale(0.95);
+            transition: 0.2s; box-shadow: var(--shadow-lg);
+        }
+        .modal-bg.show .modal-box { transform: scale(1); }
+        .modal-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+        .modal-text { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5; }
+        .modal-actions { display: flex; gap: 10px; }
+        .modal-btn { flex: 1; padding: 12px; border: none; border-radius: var(--radius-sm); font-family: inherit; font-size: 0.88rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .modal-btn-cancel { background: var(--bg-elevated); color: var(--text); border: 1px solid var(--border); }
+        .modal-btn-ok { background: var(--danger); color: white; }
+        .modal-btn:hover { opacity: 0.85; }
+
+        /* Stats Summary */
+        .stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;
+        }
+        .stat-box {
+            background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-sm);
+            padding: 14px; text-align: center;
+        }
+        .stat-value { font-size: 1.4rem; font-weight: 700; color: var(--primary); font-variant-numeric: tabular-nums; }
+        .stat-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">⏱️</div>
+                <div class="logo-text">TimeTrack Pro</div>
+            </div>
+            <div id="statusPill" class="status-pill off">
+                <span class="status-dot"></span>
+                <span id="statusText">Fuera</span>
+            </div>
+        </div>
+
+        <!-- VIEW: CLOCK -->
+        <div id="viewClock" class="view active">
+            <div class="card">
+                <div class="clock-display">
+                    <div class="clock-time" id="clockTime">00:00:00</div>
+                    <div class="clock-date" id="clockDate">Cargando...</div>
+                </div>
+                
+                <div class="timer-box" id="timerBox">
+                    <div class="timer-label">Tiempo de sesión actual</div>
+                    <div class="timer-display stopped" id="timerDisplay">00:00:00</div>
+                </div>
+                
+                <button id="btnIn" class="btn-main btn-in" onclick="doClockIn()">▶ Iniciar Jornada</button>
+                <button id="btnOut" class="btn-main btn-out" onclick="doClockOut()" style="display:none;">⏹ Finalizar Jornada</button>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">Resumen de hoy</div>
+                <div class="session-detail">
+                    <span class="session-detail-label">Entrada</span>
+                    <span class="session-detail-value" id="detailIn">--:--</span>
+                </div>
+                <div class="session-detail">
+                    <span class="session-detail-label">Salida</span>
+                    <span class="session-detail-value" id="detailOut">--:--</span>
+                </div>
+                <div class="session-detail">
+                    <span class="session-detail-label">Total acumulado</span>
+                    <span class="session-detail-value" id="detailTotal" style="color:var(--success)">0h 0m</span>
+                </div>
+                <div class="session-detail">
+                    <span class="session-detail-label">Sesiones hoy</span>
+                    <span class="session-detail-value" id="detailCount">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: HISTORY -->
+        <div id="viewHistory" class="view">
+            <div id="historyContent">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📋</div>
+                    <div>No hay registros aún</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: REPORT -->
+        <div id="viewReport" class="view">
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value" id="statTotalHours">0h</div>
+                    <div class="stat-label">Total Semana</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="statSessions">0</div>
+                    <div class="stat-label">Sesiones</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="statAvgDay">0h</div>
+                    <div class="stat-label">Promedio/Día</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="statDaysWorked">0</div>
+                    <div class="stat-label">Días Laborados</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">Reporte Detallado</div>
+                <textarea class="report-textarea" id="reportText" readonly></textarea>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">Enviar Reporte</div>
+                <input type="tel" class="input-phone" id="phoneInput" placeholder="+1 502 398 1640" value="+1 502 398 1640">
+                <button class="btn-whatsapp" onclick="sendReport()">💬 Enviar por WhatsApp</button>
+                <button class="btn-secondary" onclick="confirmReset()">🗑️ Borrar todos los datos</button>
+            </div>
+        </div>
+
+        <!-- Bottom Nav -->
+        <div class="bottom-nav">
+            <button class="nav-item active" onclick="switchView('clock')" data-view="clock">
+                <span class="nav-icon">⏱️</span>
+                <span>Reloj</span>
+            </button>
+            <button class="nav-item" onclick="switchView('history')" data-view="history">
+                <span class="nav-icon">📋</span>
+                <span>Historial</span>
+            </button>
+            <button class="nav-item" onclick="switchView('report')" data-view="report">
+                <span class="nav-icon">📊</span>
+                <span>Reporte</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast-container" id="toasts"></div>
+
+    <!-- Modal -->
+    <div class="modal-bg" id="modal" onclick="if(event.target===this)closeModal()">
+        <div class="modal-box">
+            <div class="modal-title" id="modalTitle">¿Borrar todo?</div>
+            <div class="modal-text" id="modalText">Esta acción no se puede deshacer.</div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" onclick="closeModal()">Cancelar</button>
+                <button class="modal-btn modal-btn-ok" id="modalOk">Borrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =========================
+        // STATE
+        // =========================
+        const K_RECORDS = 'tt_records_v2';
+        const K_SESSION = 'tt_session_v2';
+        let records = [];
+        let activeSession = null;
+        let tick = null;
+
+        // =========================
+        // INIT
+        // =========================
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            startClock();
+            renderAll();
+        });
+
+        // =========================
+        // STORAGE
+        // =========================
+        function loadData() {
+            try {
+                const r = localStorage.getItem(K_RECORDS);
+                const s = localStorage.getItem(K_SESSION);
+                if (r) records = JSON.parse(r);
+                if (s) {
+                    const sess = JSON.parse(s);
+                    const sessDay = new Date(sess.date).toDateString();
+                    const today = new Date().toDateString();
+                    if (sessDay === today) {
+                        activeSession = sess;
+                    } else {
+                        if (sess.clockIn) {
+                            records.push({
+                                id: genId(), date: sess.date, clockIn: sess.clockIn,
+                                clockOut: null, duration: null, completed: false
+                            });
+                            saveRecords();
+                        }
+                        localStorage.removeItem(K_SESSION);
+                    }
+                }
+            } catch (e) { records = []; activeSession = null; }
+        }
+        function saveRecords() { localStorage.setItem(K_RECORDS, JSON.stringify(records)); }
+        function saveSession() {
+            if (activeSession) localStorage.setItem(K_SESSION, JSON.stringify(activeSession));
+            else localStorage.removeItem(K_SESSION);
+        }
+
+        // =========================
+        // CLOCK IN/OUT
+        // =========================
+        function doClockIn() {
+            if (activeSession) { toast('Ya hay una sesión activa', 'err'); return; }
+            const now = new Date();
+            activeSession = { id: genId(), date: now.toISOString(), clockIn: now.toISOString(), clockOut: null };
+            saveSession();
+            renderAll();
+            toast('Sesión iniciada: ' + fmtTime(now), 'ok');
+        }
+
+        function doClockOut() {
+            if (!activeSession) { toast('No hay sesión activa', 'err'); return; }
+            const now = new Date();
+            const start = new Date(activeSession.clockIn);
+            const dur = now - start;
+            if (dur < 60000) { toast('Mínimo 1 minuto de sesión', 'err'); return; }
+
+            records.unshift({
+                id: activeSession.id, date: activeSession.date,
+                clockIn: activeSession.clockIn, clockOut: now.toISOString(),
+                duration: dur, completed: true
+            });
+            activeSession = null;
+            saveRecords(); saveSession();
+            renderAll();
+            toast('Sesión finalizada correctamente', 'ok');
+        }
+
+        // =========================
+        // RENDER
+        // =========================
+        function renderAll() {
+            renderStatus();
+            renderClockView();
+            renderHistory();
+            renderReport();
+        }
+
+        function renderStatus() {
+            const pill = document.getElementById('statusPill');
+            const txt = document.getElementById('statusText');
+            if (activeSession) {
+                pill.className = 'status-pill on';
+                txt.textContent = 'Trabajando';
+            } else {
+                pill.className = 'status-pill off';
+                txt.textContent = 'Fuera';
+            }
+        }
+
+        function renderClockView() {
+            const btnIn = document.getElementById('btnIn');
+            const btnOut = document.getElementById('btnOut');
+            const timer = document.getElementById('timerDisplay');
+            const detailIn = document.getElementById('detailIn');
+            const detailOut = document.getElementById('detailOut');
+            const detailTotal = document.getElementById('detailTotal');
+            const detailCount = document.getElementById('detailCount');
+
+            if (activeSession) {
+                btnIn.style.display = 'none';
+                btnOut.style.display = 'flex';
+                timer.classList.remove('stopped');
+            } else {
+                btnIn.style.display = 'flex';
+                btnOut.style.display = 'none';
+                timer.classList.add('stopped');
+                timer.textContent = '00:00:00';
+            }
+
+            const today = new Date().toDateString();
+            const todayRecords = records.filter(r => new Date(r.date).toDateString() === today && r.completed);
+            const todayTotal = todayRecords.reduce((sum, r) => sum + r.duration, 0);
+
+            if (activeSession) {
+                detailIn.textContent = fmtTime(new Date(activeSession.clockIn));
+                detailOut.textContent = '--:--';
+                const elapsed = new Date() - new Date(activeSession.clockIn);
+                detailTotal.textContent = fmtDur(todayTotal + elapsed);
+            } else if (todayRecords.length > 0) {
+                const last = todayRecords[0];
+                detailIn.textContent = fmtTime(new Date(last.clockIn));
+                detailOut.textContent = fmtTime(new Date(last.clockOut));
+                detailTotal.textContent = fmtDur(todayTotal);
+            } else {
+                detailIn.textContent = '--:--';
+                detailOut.textContent = '--:--';
+                detailTotal.textContent = '0h 0m';
+            }
+            detailCount.textContent = todayRecords.length;
+        }
+
+        // =========================
+        // TIMER LOOP
+        // =========================
+        function startClock() {
+            updateClock();
+            tick = setInterval(updateClock, 1000);
+        }
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clockTime').textContent = now.toLocaleTimeString('es-ES', { hour12: true });
+            document.getElementById('clockDate').textContent = now.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+            if (activeSession) {
+                const elapsed = now - new Date(activeSession.clockIn);
+                document.getElementById('timerDisplay').textContent = fmtDurFull(elapsed);
+                const today = now.toDateString();
+                const todayRecords = records.filter(r => new Date(r.date).toDateString() === today && r.completed);
+                const todayTotal = todayRecords.reduce((sum, r) => sum + r.duration, 0);
+                document.getElementById('detailTotal').textContent = fmtDur(todayTotal + elapsed);
+            }
+        }
+
+        // =========================
+        // HISTORY
+        // =========================
+        function renderHistory() {
+            const container = document.getElementById('historyContent');
+            if (records.length === 0 && !activeSession) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <div>No hay registros aún</div>
+                    </div>`;
+                return;
+            }
+
+            const weeks = {};
+            const all = [...records];
+            if (activeSession) {
+                all.unshift({ ...activeSession, duration: null, completed: false });
+            }
+
+            all.forEach(rec => {
+                const d = new Date(rec.date);
+                const ws = weekStart(d);
+                const key = ws.toISOString();
+                if (!weeks[key]) weeks[key] = { start: ws, days: {} };
+                const dayKey = d.toDateString();
+                if (!weeks[key].days[dayKey]) weeks[key].days[dayKey] = { date: d, sessions: [] };
+                weeks[key].days[dayKey].sessions.push(rec);
+            });
+
+            let html = '';
+            const weekKeys = Object.keys(weeks).sort((a, b) => new Date(b) - new Date(a));
+
+            weekKeys.forEach(wk => {
+                const week = weeks[wk];
+                const weekEnd = new Date(week.start);
+                weekEnd.setDate(weekEnd.getDate() + 6);
+                const weekTotal = Object.values(week.days).reduce((sum, day) => {
+                    return sum + day.sessions.reduce((s, sess) => s + (sess.duration || 0), 0);
+                }, 0);
+
+                html += `
+                    <div class="week-group">
+                        <div class="week-header">
+                            <span class="week-header-title">Semana ${fmtShortDate(week.start)} - ${fmtShortDate(weekEnd)}</span>
+                            <span class="week-header-total">${fmtDur(weekTotal)}</span>
+                        </div>
+                `;
+
+                const dayKeys = Object.keys(week.days).sort((a, b) => new Date(b) - new Date(a));
+                dayKeys.forEach(dk => {
+                    const day = week.days[dk];
+                    const dayTotal = day.sessions.reduce((s, sess) => s + (sess.duration || 0), 0);
+                    const isToday = dk === new Date().toDateString();
+                    const dayId = 'day_' + dk.replace(/\s/g, '_');
+
+                    html += `
+                        <div class="day-card">
+                            <div class="day-header" onclick="toggleDay('${dayId}')">
+                                <div class="day-info">
+                                    <div class="day-badge" style="${isToday ? 'border-color:var(--warning);color:var(--warning)' : ''}">
+                                        <div class="day-badge-num">${day.date.getDate()}</div>
+                                        <div class="day-badge-name">${day.date.toLocaleDateString('es-ES',{weekday:'short'})}</div>
+                                    </div>
+                                    <div>
+                                        <div class="day-title">${day.date.toLocaleDateString('es-ES',{weekday:'long'})}</div>
+                                        <div class="day-subtitle">${day.sessions.length} sesión${day.sessions.length>1?'es':''} · ${fmtDur(dayTotal)}</div>
+                                    </div>
+                                </div>
+                                <div class="day-total">${fmtDur(dayTotal)}</div>
+                            </div>
+                            <div class="day-sessions" id="${dayId}">
+                    `;
+
+                    day.sessions.forEach((sess, idx) => {
+                        const inTime = fmtTime(new Date(sess.clockIn));
+                        const outTime = sess.clockOut ? fmtTime(new Date(sess.clockOut)) : 'En curso';
+                        const dur = sess.duration ? fmtDur(sess.duration) : fmtDur(new Date() - new Date(sess.clockIn));
+                        const statusIcon = sess.completed ? '✓' : '●';
+                        const statusColor = sess.completed ? 'var(--success)' : 'var(--warning)';
+                        html += `
+                            <div class="session-row">
+                                <div class="session-times">
+                                    <span style="color:${statusColor};font-weight:700">${statusIcon}</span>
+                                    <span>${inTime}</span>
+                                    <span class="arrow">→</span>
+                                    <span>${outTime}</span>
+                                </div>
+                                <div class="session-dur">${dur}</div>
+                            </div>
+                        `;
+                    });
+
+                    html += `</div></div>`;
+                });
+
+                html += `</div>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function toggleDay(id) {
+            const el = document.getElementById(id);
+            el.classList.toggle('open');
+        }
+
+        // =========================
+        // REPORT - ULTRA DETALLADO
+        // =========================
+        function renderReport() {
+            const now = new Date();
+            const ws = weekStart(now);
+            const we = new Date(ws); we.setDate(we.getDate() + 6);
+
+            // Calcular stats
+            const weekRecords = records.filter(r => {
+                if (!r.completed) return false;
+                return weekStart(new Date(r.date)).getTime() === ws.getTime();
+            });
+
+            const totalMs = weekRecords.reduce((sum, r) => sum + r.duration, 0) + 
+                (activeSession && weekStart(new Date(activeSession.date)).getTime() === ws.getTime() 
+                    ? (new Date() - new Date(activeSession.clockIn)) : 0);
+
+            const daysWithWork = new Set(weekRecords.map(r => new Date(r.date).toDateString())).size;
+            const avgDay = daysWithWork > 0 ? totalMs / daysWithWork : 0;
+
+            document.getElementById('statTotalHours').textContent = fmtDur(totalMs);
+            document.getElementById('statSessions').textContent = weekRecords.length + (activeSession ? 1 : 0);
+            document.getElementById('statAvgDay').textContent = fmtDur(avgDay);
+            document.getElementById('statDaysWorked').textContent = daysWithWork;
+
+            // Generar reporte detallado
+            let text = `*REPORTE SEMANAL DE HORAS*\n`;
+            text += `━━━━━━━━━━━━━━━━━━━━━━━\n`;
+            text += `📅 Período: ${fmtLongDate(ws)} al ${fmtLongDate(we)}\n`;
+            text += `👤 Generado: ${fmtDateTime(now)}\n`;
+            text += `━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+
+            const dayNames = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+            const dayHours = new Array(7).fill(0);
+            const daySessions = new Array(7).fill(null).map(() => []);
+
+            // Agrupar por día
+            weekRecords.forEach(r => {
+                const d = new Date(r.date);
+                const idx = d.getDay();
+                dayHours[idx] += r.duration;
+                daySessions[idx].push(r);
+            });
+
+            if (activeSession) {
+                const d = new Date(activeSession.date);
+                if (weekStart(d).getTime() === ws.getTime()) {
+                    const idx = d.getDay();
+                    const elapsed = new Date() - new Date(activeSession.clockIn);
+                    dayHours[idx] += elapsed;
+                    daySessions[idx].push({ ...activeSession, duration: elapsed, completed: false });
+                }
+            }
+
+            let hasData = false;
+            for (let i = 1; i <= 7; i++) {
+                const idx = i % 7;
+                const sessions = daySessions[idx];
+                if (sessions.length === 0) continue;
+                hasData = true;
+
+                const dayTotal = dayHours[idx];
+                text += `*${dayNames[idx].toUpperCase()}*\n`;
+                text += `Total del día: ${fmtDur(dayTotal)}\n`;
+                text += `Sesiones: ${sessions.length}\n`;
+                text += `─────────────────\n`;
+
+                sessions.forEach((sess, sidx) => {
+                    const inTime = fmtTime(new Date(sess.clockIn));
+                    const outTime = sess.clockOut ? fmtTime(new Date(sess.clockOut)) : 'EN CURSO';
+                    const dur = sess.duration ? fmtDur(sess.duration) : fmtDur(new Date() - new Date(sess.clockIn));
+                    text += `  ${sidx + 1}. ${inTime} → ${outTime}\n`;
+                    text += `     Duración: ${dur}\n`;
+                });
+                text += `\n`;
+            }
+
+            if (!hasData) {
+                text += `*Sin registros esta semana*\n\n`;
+            }
+
+            text += `━━━━━━━━━━━━━━━━━━━━━━━\n`;
+            text += `*RESUMEN GENERAL*\n`;
+            text += `Total semanal: ${fmtDur(totalMs)}\n`;
+            text += `Días laborados: ${daysWithWork}\n`;
+            text += `Promedio/día: ${fmtDur(avgDay)}\n`;
+            text += `Total sesiones: ${weekRecords.length + (activeSession ? 1 : 0)}\n`;
+            text += `━━━━━━━━━━━━━━━━━━━━━━━\n`;
+            text += `📱 TimeTrack Pro`;
+
+            document.getElementById('reportText').value = text;
+        }
+
+        function sendReport() {
+            const phone = document.getElementById('phoneInput').value.replace(/[^\d+]/g, '');
+            if (!phone.startsWith('+')) { toast('Incluye código de país (ej: +502)', 'err'); return; }
+            const msg = encodeURIComponent(document.getElementById('reportText').value);
+            window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+            toast('Abriendo WhatsApp...', 'ok');
+        }
+
+        // =========================
+        // RESET
+        // =========================
+        function confirmReset() {
+            showModal('Borrar todos los datos', '¿Seguro que deseas eliminar todo el historial? Esta acción no se puede deshacer.', () => {
+                records = []; activeSession = null;
+                saveRecords(); saveSession(); renderAll();
+                toast('Datos eliminados', 'info'); closeModal();
+            });
+        }
+
+        // =========================
+        // NAVIGATION
+        // =========================
+        function switchView(name) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('view' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+            document.querySelector(`.nav-item[data-view="${name}"]`).classList.add('active');
+            if (name === 'report') renderReport();
+            if (name === 'history') renderHistory();
+        }
+
+        // =========================
+        // UTILS
+        // =========================
+        function weekStart(d) {
+            const date = new Date(d);
+            const day = date.getDay();
+            const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+            const ws = new Date(date.setDate(diff));
+            ws.setHours(0,0,0,0);
+            return ws;
+        }
+        function fmtTime(d) {
+            return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: true });
+        }
+        function fmtDateTime(d) {
+            return d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + 
+                   d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: true });
+        }
+        function fmtDur(ms) {
+            const s = Math.floor(ms / 1000);
+            const h = Math.floor(s / 3600);
+            const m = Math.floor((s % 3600) / 60);
+            if (h === 0) return `${m}m`;
+            return `${h}h ${m}m`;
+        }
+        function fmtDurFull(ms) {
+            const s = Math.floor(ms / 1000);
+            const h = Math.floor(s / 3600);
+            const m = Math.floor((s % 3600) / 60);
+            const sec = s % 60;
+            return `${pad(h)}:${pad(m)}:${pad(sec)}`;
+        }
+        function fmtShortDate(d) {
+            return d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
+        }
+        function fmtLongDate(d) {
+            return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+        }
+        function pad(n) { return String(n).padStart(2, '0'); }
+        function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+
+        // =========================
+        // TOAST & MODAL
+        // =========================
+        function toast(msg, type) {
+            const c = document.getElementById('toasts');
+            const t = document.createElement('div');
+            t.className = 'toast ' + (type === 'ok' ? 'ok' : type === 'err' ? 'err' : 'info');
+            const icon = type === 'ok' ? '✓' : type === 'err' ? '✕' : 'ℹ';
+            t.innerHTML = `<span style="font-size:1.1rem">${icon}</span><span>${msg}</span>`;
+            c.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+        function showModal(title, text, onOk) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalText').textContent = text;
+            document.getElementById('modalOk').onclick = onOk;
+            document.getElementById('modal').classList.add('show');
+        }
+        function closeModal() { document.getElementById('modal').classList.remove('show'); }
+    </script>
+</body>
+</html>
