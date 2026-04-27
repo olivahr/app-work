@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TimeTrack Pro Enterprise</title>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            /* Core Colors - Dark Enterprise */
+            --bg: #0a0e1a;
+            --bg-gradient: linear-gradient(180deg, #0a0e1a 0%, #111827 50%, #0f172a 100%);
+            --surface: rgba(30, 41, 59, 0.6);
+            --surface-solid: #1e293b;
+            --surface-hover: rgba(51, 65, 85, 0.8);
+            --surface-light: rgba(71, 85, 105, 0.4);
+            
+            /* Text */
+            --text: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            
+            /* Accents - Neon Enterprise */
+            --primary: #3b82f6;
+            --primary-light: #60a5fa;
+            --primary-glow: rgba(59, 130, 246, 0.4);
+            --primary-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            
+            --success: #10b981;
+            --success-light: #34d399;
+            --success-glow: rgba(16, 185, 129, 0.4);
+            --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            
+            --danger: #ef4444;
+            --danger-light: #f87171;
+            --danger-glow: rgba(239, 68, 68, 0.4);
+            --danger-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            
+            --warning: #f59e0b;
+            --warning-glow: rgba(245, 158, 11, 0.4);
+            
+            /* Glassmorphism */
+            --glass: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-highlight: rgba(255, 255, 255, 0.05);
+            
+            /* Shadows - Multi-layer */
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.4), 0 2px 4px -1px rgba(0,0,0,0.2);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.5), 0 4px 6px -2px rgba(0,0,0,0.3);
+            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.5), 0 10px 10px -5px rgba(0,0,0,0.3);
+            --shadow-glow-primary: 0 0 20px rgba(59, 130, 246, 0.3);
+            --shadow-glow-success: 0 0 20px rgba(16, 185, 129, 0.3);
+            --shadow-glow-danger: 0 0 20px rgba(239, 68, 68, 0.3);
+            
+            /* Spacing */
+            --radius: 20px;
+            --radius-lg: 24px;
+            --radius-sm: 12px;
+            --radius-xs: 8px;
+        }
+
+        html { 
+            font-size: 16px; 
+            -webkit-tap-highlight-color: transparent;
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.05) 0%, transparent 50%);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--surface-light); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        .app { 
+            max-width: 430px; 
+            margin: 0 auto; 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column;
+            position: relative;
+            background: var(--bg-gradient);
+        }
+
+        /* ========== HEADER ========== */
+        .header {
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.8) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .logo { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+        }
+        
+        .logo-icon { 
+            width: 40px; 
+            height: 40px; 
+            background: var(--primary-gradient);
+            border-radius: var(--radius-sm);
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 20px;
+            box-shadow: var(--shadow-glow-primary), var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .logo-icon::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .logo-title { 
+            font-weight: 800; 
+            font-size: 1.15rem;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .logo-subtitle {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .status-pill {
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            padding: 8px 16px; 
+            border-radius: 50px;
+            font-size: 0.8rem; 
+            font-weight: 700; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid transparent;
+        }
+        
+        .status-pill.on { 
+            background: rgba(16, 185, 129, 0.15); 
+            color: var(--success-light); 
+            border-color: rgba(16, 185, 129, 0.3);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+        
+        .status-pill.off { 
+            background: rgba(239, 68, 68, 0.15); 
+            color: var(--danger-light); 
+            border-color: rgba(239, 68, 68, 0.3);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.1), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+        
+        .status-dot { 
+            width: 8px; 
+            height: 8px; 
+            border-radius: 50%;
+            position: relative;
+        }
+        
+        .status-pill.on .status-dot { 
+            background: var(--success); 
+            box-shadow: 0 0 8px var(--success);
+        }
+        
+        .status-pill.on .status-dot::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 2px solid var(--success);
+            opacity: 0;
+            animation: ripple 2s infinite;
+        }
+        
+        .status-pill.off .status-dot { 
+            background: var(--danger); 
+            box-shadow: 0 0 8px var(--danger);
+        }
+        
+        @keyframes ripple {
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+
+        /* ========== VIEWS ========== */
+        .view { 
+            display: none; 
+            flex-direction: column; 
+            flex: 1; 
+            padding: 20px; 
+            gap: 16px;
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .view.active { 
+            display: flex; 
+        }
+        
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(12px) scale(0.98); } 
+            to { opacity: 1; transform: translateY(0) scale(1); } 
+        }
+
+        /* ========== CARDS ========== */
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--radius);
+            padding: 24px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-lg), inset 0 1px 0 var(--glass-highlight);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl), inset 0 1px 0 var(--glass-highlight);
+        }
+
+        .card-title { 
+            font-size: 0.75rem; 
+            font-weight: 700; 
+            color: var(--text-secondary); 
+            text-transform: uppercase; 
+            letter-spacing: 1.5px; 
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .card-title::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: var(--primary-gradient);
+            border-radius: 2px;
+        }
+
+        /* ========== CLOCK VIEW ========== */
+        .clock-display { 
+            text-align: center; 
+            padding: 16px 0 24px;
+            position: relative;
+        }
+        
+        .clock-time { 
+            font-size: 3.5rem; 
+            font-weight: 800; 
+            letter-spacing: -2px; 
+            font-variant-numeric: tabular-nums; 
+            line-height: 1;
+            background: linear-gradient(180deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .clock-date { 
+            font-size: 0.85rem; 
+            color: var(--text-secondary); 
+            margin-top: 8px; 
+            text-transform: capitalize;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .timer-container {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .timer-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--success), transparent);
+            animation: scanline 3s infinite;
+        }
+        
+        @keyframes scanline {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .timer-container.stopped {
+            background: var(--surface);
+            border-color: var(--glass-border);
+        }
+        
+        .timer-container.stopped::before {
+            display: none;
+        }
+
+        .timer-label { 
+            font-size: 0.7rem; 
+            color: var(--success-light); 
+            text-align: center; 
+            margin-bottom: 6px; 
+            text-transform: uppercase; 
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+        
+        .timer-label.stopped {
+            color: var(--text-muted);
+        }
+
+        .timer-display {
+            font-size: 2.6rem; 
+            font-weight: 800; 
+            color: var(--success-light); 
+            font-variant-numeric: tabular-nums;
+            text-align: center;
+            letter-spacing: 3px;
+            text-shadow: 0 0 20px var(--success-glow);
+            transition: all 0.3s ease;
+        }
+        
+        .timer-display.stopped { 
+            color: var(--text-muted); 
+            text-shadow: none;
+        }
+
+        /* Buttons */
+        .btn-main {
+            width: 100%; 
+            padding: 20px; 
+            border: none; 
+            border-radius: var(--radius-sm);
+            font-family: inherit; 
+            font-size: 1.05rem; 
+            font-weight: 700; 
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-main::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-main:hover::before {
+            left: 100%;
+        }
+        
+        .btn-main:active { 
+            transform: scale(0.96); 
+        }
+
+        .btn-in {
+            background: var(--success-gradient);
+            color: white;
+            box-shadow: var(--shadow-glow-success), var(--shadow-lg);
+        }
+        
+        .btn-in:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.5), var(--shadow-xl);
+        }
+
+        .btn-out {
+            background: var(--danger-gradient);
+            color: white;
+            box-shadow: var(--shadow-glow-danger), var(--shadow-lg);
+        }
+        
+        .btn-out:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.5), var(--shadow-xl);
+        }
+
+        .btn-main:disabled { 
+            opacity: 0.4; 
+            cursor: not-allowed; 
+            transform: none !important; 
+            box-shadow: none; 
+        }
+
+        .session-detail {
+            display: flex; 
+            justify-content: space-between; 
+            padding: 14px 0;
+            border-bottom: 1px solid var(--glass-border);
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        
+        .session-detail:hover {
+            background: rgba(255,255,255,0.02);
+            margin: 0 -12px;
+            padding: 14px 12px;
+            border-radius: var(--radius-xs);
+        }
+        
+        .session-detail:last-child { 
+            border-bottom: none; 
+        }
+        
+        .session-detail-label { 
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .session-detail-value { 
+            font-weight: 700; 
+            font-variant-numeric: tabular-nums;
+            color: var(--text);
+        }
+
+        /* ========== HISTORY VIEW ========== */
+        .week-group { 
+            margin-bottom: 20px;
+            animation: slideUp 0.5s ease backwards;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .week-header {
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            padding: 14px 18px; 
+            background: linear-gradient(135deg, rgba(51, 65, 85, 0.8) 0%, rgba(30, 41, 59, 0.8) 100%);
+            border-radius: var(--radius-sm);
+            margin-bottom: 12px; 
+            font-size: 0.85rem;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+        }
+        
+        .week-header-title { 
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+        
+        .week-header-total { 
+            color: var(--primary-light); 
+            font-weight: 800;
+            text-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .day-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            margin-bottom: 10px; 
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .day-card:hover {
+            border-color: rgba(255,255,255,0.15);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .day-header {
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            padding: 16px; 
+            cursor: pointer; 
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .day-header:hover { 
+            background: var(--surface-hover);
+        }
+        
+        .day-header::after {
+            content: '›';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            transition: transform 0.3s;
+        }
+        
+        .day-sessions.open + .day-header::after,
+        .day-header.active::after {
+            transform: translateY(-50%) rotate(90deg);
+        }
+
+        .day-info { 
+            display: flex; 
+            align-items: center; 
+            gap: 14px; 
+        }
+        
+        .day-badge {
+            width: 48px; 
+            height: 48px; 
+            border-radius: var(--radius-xs); 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            justify-content: center; 
+            background: var(--surface-light); 
+            font-weight: 800;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s;
+        }
+        
+        .day-badge-num { 
+            font-size: 1.1rem; 
+            line-height: 1; 
+        }
+        
+        .day-badge-name { 
+            font-size: 0.65rem; 
+            text-transform: uppercase; 
+            color: var(--text-secondary);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        
+        .day-title { 
+            font-weight: 700; 
+            font-size: 0.95rem;
+            letter-spacing: 0.3px;
+        }
+        
+        .day-subtitle { 
+            font-size: 0.8rem; 
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+        
+        .day-total { 
+            font-weight: 800; 
+            color: var(--success-light); 
+            font-variant-numeric: tabular-nums; 
+            font-size: 1rem;
+            padding-right: 24px;
+        }
+
+        .day-sessions { 
+            display: none; 
+            padding: 0 16px 16px; 
+        }
+        
+        .day-sessions.open { 
+            display: block; 
+            animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        
+        @keyframes slideDown { 
+            from { opacity: 0; max-height: 0; } 
+            to { opacity: 1; max-height: 500px; } 
+        }
+
+        .session-row {
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            padding: 12px 0; 
+            border-bottom: 1px solid var(--glass-border);
+            font-size: 0.88rem;
+            transition: all 0.2s;
+        }
+        
+        .session-row:hover {
+            background: rgba(255,255,255,0.03);
+            margin: 0 -8px;
+            padding: 12px 8px;
+            border-radius: var(--radius-xs);
+        }
+        
+        .session-row:last-child { 
+            border-bottom: none; 
+        }
+        
+        .session-times { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .session-times .arrow { 
+            color: var(--primary-light);
+            font-weight: 700;
+        }
+        
+        .session-dur { 
+            font-weight: 700; 
+            color: var(--text);
+            font-variant-numeric: tabular-nums;
+            background: var(--surface-light);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .empty-state { 
+            text-align: center; 
+            padding: 60px 24px; 
+            color: var(--text-secondary);
+        }
+        
+        .empty-state-icon { 
+            font-size: 4rem; 
+            margin-bottom: 16px; 
+            opacity: 0.3;
+            filter: grayscale(100%);
+        }
+        
+        .empty-state-text {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        /* ========== REPORT VIEW ========== */
+        .report-textarea {
+            width: 100%; 
+            min-height: 300px; 
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm); 
+            padding: 20px; 
+            color: var(--text); 
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.85rem; 
+            line-height: 1.8; 
+            resize: none; 
+            outline: none;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+        
+        .report-textarea:focus { 
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .input-phone {
+            width: 100%; 
+            padding: 16px; 
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm); 
+            color: var(--text); 
+            font-family: inherit; 
+            font-size: 1rem;
+            outline: none; 
+            margin-bottom: 12px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+        
+        .input-phone:focus { 
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .input-phone::placeholder { 
+            color: var(--text-muted); 
+        }
+
+        .btn-whatsapp {
+            width: 100%; 
+            padding: 18px; 
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+            color: white; 
+            border: none;
+            border-radius: var(--radius-sm); 
+            font-family: inherit; 
+            font-size: 1rem; 
+            font-weight: 700;
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-whatsapp:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
+        }
+        
+        .btn-whatsapp:active { 
+            transform: scale(0.97); 
+        }
+
+        .btn-secondary {
+            width: 100%; 
+            padding: 16px; 
+            background: transparent; 
+            color: var(--text-secondary);
+            border: 1.5px solid var(--glass-border); 
+            border-radius: var(--radius-sm); 
+            font-family: inherit;
+            font-size: 0.9rem; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            margin-top: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .btn-secondary:hover { 
+            border-color: var(--danger);
+            color: var(--danger-light);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        /* ========== BOTTOM NAV ========== */
+        .bottom-nav {
+            display: flex; 
+            background: rgba(15, 23, 42, 0.9);
+            border-top: 1px solid var(--glass-border);
+            padding: 8px 0 12px; 
+            position: sticky; 
+            bottom: 0; 
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        
+        .nav-item {
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 4px;
+            padding: 8px; 
+            border: none; 
+            background: none; 
+            color: var(--text-muted);
+            font-family: inherit; 
+            font-size: 0.7rem; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--primary);
+            transition: transform 0.3s;
+        }
+        
+        .nav-item.active { 
+            color: var(--primary-light);
+        }
+        
+        .nav-item.active::before {
+            transform: translateX(-50%) scale(1);
+        }
+        
+        .nav-item .nav-icon { 
+            font-size: 1.5rem;
+            transition: transform 0.3s;
+        }
+        
+        .nav-item.active .nav-icon {
+            transform: translateY(-2px);
+            filter: drop-shadow(0 0 8px var(--primary-glow));
+        }
+
+        /* ========== TOAST ========== */
+        .toast-container {
+            position: fixed; 
+            top: 20px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            z-index: 1000;
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+            pointer-events: none; 
+            width: 90%; 
+            max-width: 380px;
+        }
+        
+        .toast {
+            padding: 16px 20px; 
+            border-radius: var(--radius-sm); 
+            color: white; 
+            font-size: 0.9rem;
+            font-weight: 600; 
+            box-shadow: var(--shadow-xl);
+            display: flex; 
+            align-items: center; 
+            gap: 12px;
+            animation: toastIn 0.4s cubic-bezier(0.4, 0, 0.2, 1), toastOut 0.4s cubic-bezier(0.4, 0, 0.2, 1) 2.6s forwards;
+            pointer-events: auto;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .toast.ok { 
+            background: rgba(16, 185, 129, 0.95);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+        }
+        
+        .toast.err { 
+            background: rgba(239, 68, 68, 0.95);
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);
+        }
+        
+        .toast.info { 
+            background: rgba(59, 130, 246, 0.95);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        }
+        
+        @keyframes toastIn { 
+            from { opacity: 0; transform: translateY(-20px) scale(0.95); } 
+            to { opacity: 1; transform: translateY(0) scale(1); } 
+        }
+        
+        @keyframes toastOut { 
+            from { opacity: 1; transform: translateY(0) scale(1); } 
+            to { opacity: 0; transform: translateY(-20px) scale(0.95); } 
+        }
+
+        /* ========== MODAL ========== */
+        .modal-bg {
+            position: fixed; 
+            inset: 0; 
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center; 
+            justify-content: center; 
+            z-index: 2000; 
+            opacity: 0;
+            visibility: hidden; 
+            transition: all 0.3s; 
+            padding: 20px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-bg.show { 
+            opacity: 1; 
+            visibility: visible; 
+        }
+        
+        .modal-box {
+            background: var(--surface-solid);
+            border-radius: var(--radius-lg); 
+            padding: 28px;
+            width: 100%; 
+            max-width: 360px; 
+            border: 1px solid var(--glass-border);
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .modal-bg.show .modal-box { 
+            transform: scale(1) translateY(0); 
+        }
+        
+        .modal-title { 
+            font-size: 1.2rem; 
+            font-weight: 800; 
+            margin-bottom: 10px;
+            letter-spacing: -0.3px;
+        }
+        
+        .modal-text { 
+            font-size: 0.9rem; 
+            color: var(--text-secondary); 
+            margin-bottom: 24px; 
+            line-height: 1.6;
+        }
+        
+        .modal-actions { 
+            display: flex; 
+            gap: 12px; 
+        }
+        
+        .modal-btn { 
+            flex: 1; 
+            padding: 14px; 
+            border: none; 
+            border-radius: var(--radius-sm); 
+            font-family: inherit; 
+            font-size: 0.9rem; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: all 0.3s;
+        }
+        
+        .modal-btn-cancel { 
+            background: var(--surface-light); 
+            color: var(--text);
+        }
+        
+        .modal-btn-cancel:hover {
+            background: var(--surface-hover);
+        }
+        
+        .modal-btn-ok { 
+            background: var(--danger-gradient);
+            color: white;
+            box-shadow: var(--shadow-glow-danger);
+        }
+        
+        .modal-btn-ok:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+        }
+
+        /* ========== ANIMATIONS ========== */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Responsive tweaks */
+        @media (max-width: 380px) {
+            .clock-time { font-size: 3rem; }
+            .timer-display { font-size: 2.2rem; }
+            .card { padding: 20px; }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">⏱️</div>
+                <div class="logo-text">
+                    <div class="logo-title">TimeTrack Pro</div>
+                    <div class="logo-subtitle">Enterprise Edition</div>
+                </div>
+            </div>
+            <div id="statusPill" class="status-pill off">
+                <span class="status-dot"></span>
+                <span id="statusText">Fuera</span>
+            </div>
+        </div>
+
+        <!-- VIEW: CLOCK -->
+        <div id="viewClock" class="view active">
+            <div class="card">
+                <div class="clock-display">
+                    <div class="clock-time" id="clockTime">00:00:00</div>
+                    <div class="clock-date" id="clockDate">Cargando...</div>
+                </div>
+                
+                <div class="timer-container stopped" id="timerContainer">
+                    <div class="timer-label stopped" id="timerLabel">Tiempo de sesión</div>
+                    <div class="timer-display stopped" id="timerDisplay">00:00:00</div>
+                </div>
+                
+                <button id="btnIn" class="btn-main btn-in" onclick="doClockIn()">
+                    <span>▶</span> Iniciar Jornada
+                </button>
+                <button id="btnOut" class="btn-main btn-out" onclick="doClockOut()" style="display:none;">
+                    <span>⏹</span> Finalizar Jornada
+                </button>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">Detalle de hoy</div>
+                <div class="session-detail">
+                    <span class="session-detail-label">Entrada</span>
+                    <span class="session-detail-value" id="detailIn">--:--</span>
+                </div>
+                <div class="session-detail">
+                    <span class="session-detail-label">Salida</span>
+                    <span class="session-detail-value" id="detailOut">--:--</span>
+                </div>
+                <div class="session-detail">
+                    <span class="session-detail-label">Total del día</span>
+                    <span class="session-detail-value" id="detailTotal" style="color:var(--success-light)">0h 0m</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: HISTORY -->
+        <div id="viewHistory" class="view">
+            <div id="historyContent">
+                <div class="empty-state">
+                    <div class="empty-state-icon animate-float">📭</div>
+                    <div class="empty-state-text">No hay registros aún</div>
+                    <div style="font-size: 0.85rem; margin-top: 8px; opacity: 0.7;">Toca iniciar para comenzar</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: REPORT -->
+        <div id="viewReport" class="view">
+            <div class="card">
+                <div class="card-title">Reporte Semanal</div>
+                <textarea class="report-textarea" id="reportText" readonly></textarea>
+            </div>
+            <div class="card">
+                <div class="card-title">Enviar por WhatsApp</div>
+                <input type="tel" class="input-phone" id="phoneInput" placeholder="+1 502 398 1640" value="+1 502 398 1640">
+                <button class="btn-whatsapp" onclick="sendReport()">
+                    <span>💬</span> Enviar Reporte
+                </button>
+                <button class="btn-secondary" onclick="confirmReset()">
+                    🗑️ Borrar todos los datos
+                </button>
+            </div>
+        </div>
+
+        <!-- Bottom Nav -->
+        <div class="bottom-nav">
+            <button class="nav-item active" onclick="switchView('clock')" data-view="clock">
+                <span class="nav-icon">⏱️</span>
+                <span>Reloj</span>
+            </button>
+            <button class="nav-item" onclick="switchView('history')" data-view="history">
+                <span class="nav-icon">📋</span>
+                <span>Historial</span>
+            </button>
+            <button class="nav-item" onclick="switchView('report')" data-view="report">
+                <span class="nav-icon">📊</span>
+                <span>Reporte</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast-container" id="toasts"></div>
+
+    <!-- Modal -->
+    <div class="modal-bg" id="modal" onclick="if(event.target===this)closeModal()">
+        <div class="modal-box">
+            <div class="modal-title" id="modalTitle">¿Borrar todo?</div>
+            <div class="modal-text" id="modalText">Esta acción no se puede deshacer.</div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" onclick="closeModal()">Cancelar</button>
+                <button class="modal-btn modal-btn-ok" id="modalOk">Borrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =========================
+        // STATE
+        // =========================
+        const K_RECORDS = 'tt_records';
+        const K_SESSION = 'tt_session';
+        let records = [];
+        let activeSession = null;
+        let tick = null;
+
+        // =========================
+        // INIT
+        // =========================
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            startClock();
+            renderAll();
+        });
+
+        // =========================
+        // STORAGE
+        // =========================
+        function loadData() {
+            try {
+                const r = localStorage.getItem(K_RECORDS);
+                const s = localStorage.getItem(K_SESSION);
+                if (r) records = JSON.parse(r);
+                if (s) {
+                    const sess = JSON.parse(s);
+                    const sessDay = new Date(sess.date).toDateString();
+                    const today = new Date().toDateString();
+                    if (sessDay === today) {
+                        activeSession = sess;
+                    } else {
+                        if (sess.clockIn) {
+                            records.push({
+                                id: genId(), date: sess.date, clockIn: sess.clockIn,
+                                clockOut: null, duration: null, completed: false
+                            });
+                            saveRecords();
+                        }
+                        localStorage.removeItem(K_SESSION);
+                    }
+                }
+            } catch (e) { records = []; activeSession = null; }
+        }
+        
+        function saveRecords() { localStorage.setItem(K_RECORDS, JSON.stringify(records)); }
+        function saveSession() {
+            if (activeSession) localStorage.setItem(K_SESSION, JSON.stringify(activeSession));
+            else localStorage.removeItem(K_SESSION);
+        }
+
+        // =========================
+        // CLOCK IN/OUT
+        // =========================
+        function doClockIn() {
+            if (activeSession) { toast('Ya hay una sesión activa', 'err'); return; }
+            const now = new Date();
+            activeSession = { id: genId(), date: now.toISOString(), clockIn: now.toISOString(), clockOut: null };
+            saveSession();
+            renderAll();
+            toast('✅ Sesión iniciada: ' + fmtTime(now), 'ok');
+        }
+
+        function doClockOut() {
+            if (!activeSession) { toast('No hay sesión activa', 'err'); return; }
+            const now = new Date();
+            const start = new Date(activeSession.clockIn);
+            const dur = now - start;
+            if (dur < 60000) { toast('Mínimo 1 minuto', 'err'); return; }
+
+            records.unshift({
+                id: activeSession.id, date: activeSession.date,
+                clockIn: activeSession.clockIn, clockOut: now.toISOString(),
+                duration: dur, completed: true
+            });
+            activeSession = null;
+            saveRecords(); saveSession();
+            renderAll();
+            toast('✅ Sesión guardada correctamente', 'ok');
+        }
+
+        // =========================
+        // RENDER
+        // =========================
+        function renderAll() {
+            renderStatus();
+            renderClockView();
+            renderHistory();
+            renderReport();
+        }
+
+        function renderStatus() {
+            const pill = document.getElementById('statusPill');
+            const txt = document.getElementById('statusText');
+            if (activeSession) {
+                pill.className = 'status-pill on';
+                txt.textContent = 'Trabajando';
+            } else {
+                pill.className = 'status-pill off';
+                txt.textContent = 'Fuera';
+            }
+        }
+
+        function renderClockView() {
+            const btnIn = document.getElementById('btnIn');
+            const btnOut = document.getElementById('btnOut');
+            const timer = document.getElementById('timerDisplay');
+            const timerContainer = document.getElementById('timerContainer');
+            const timerLabel = document.getElementById('timerLabel');
+            const detailIn = document.getElementById('detailIn');
+            const detailOut = document.getElementById('detailOut');
+            const detailTotal = document.getElementById('detailTotal');
+
+            if (activeSession) {
+                btnIn.style.display = 'none';
+                btnOut.style.display = 'flex';
+                timer.classList.remove('stopped');
+                timerContainer.classList.remove('stopped');
+                timerLabel.classList.remove('stopped');
+            } else {
+                btnIn.style.display = 'flex';
+                btnOut.style.display = 'none';
+                timer.classList.add('stopped');
+                timerContainer.classList.add('stopped');
+                timerLabel.classList.add('stopped');
+                timer.textContent = '00:00:00';
+            }
+
+            const today = new Date().toDateString();
+            const todayRecords = records.filter(r => new Date(r.date).toDateString() === today && r.completed);
+            const todayTotal = todayRecords.reduce((sum, r) => sum + r.duration, 0);
+
+            if (activeSession) {
+                detailIn.textContent = fmtTime(new Date(activeSession.clockIn));
+                detailOut.textContent = '--:--';
+                const elapsed = new Date() - new Date(activeSession.clockIn);
+                detailTotal.textContent = fmtDur(todayTotal + elapsed);
+            } else if (todayRecords.length > 0) {
+                const last = todayRecords[0];
+                detailIn.textContent = fmtTime(new Date(last.clockIn));
+                detailOut.textContent = fmtTime(new Date(last.clockOut));
+                detailTotal.textContent = fmtDur(todayTotal);
+            } else {
+                detailIn.textContent = '--:--';
+                detailOut.textContent = '--:--';
+                detailTotal.textContent = '0h 0m';
+            }
+        }
+
+        // =========================
+        // TIMER LOOP
+        // =========================
+        function startClock() {
+            updateClock();
+            tick = setInterval(updateClock, 1000);
+        }
+        
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clockTime').textContent = now.toLocaleTimeString('es-ES', { hour12: true });
+            document.getElementById('clockDate').textContent = now.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+            if (activeSession) {
+                const elapsed = now - new Date(activeSession.clockIn);
+                document.getElementById('timerDisplay').textContent = fmtDurFull(elapsed);
+                const today = now.toDateString();
+                const todayRecords = records.filter(r => new Date(r.date).toDateString() === today && r.completed);
+                const todayTotal = todayRecords.reduce((sum, r) => sum + r.duration, 0);
+                document.getElementById('detailTotal').textContent = fmtDur(todayTotal + elapsed);
+            }
+        }
+
+        // =========================
+        // HISTORY
+        // =========================
+        function renderHistory() {
+            const container = document.getElementById('historyContent');
+            if (records.length === 0 && !activeSession) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon animate-float">📭</div>
+                        <div class="empty-state-text">No hay registros aún</div>
+                        <div style="font-size: 0.85rem; margin-top: 8px; opacity: 0.7;">Toca iniciar para comenzar</div>
+                    </div>`;
+                return;
+            }
+
+            const weeks = {};
+            const all = [...records];
+            if (activeSession) {
+                all.unshift({ ...activeSession, duration: null, completed: false });
+            }
+
+            all.forEach(rec => {
+                const d = new Date(rec.date);
+                const ws = weekStart(d);
+                const key = ws.toISOString();
+                if (!weeks[key]) weeks[key] = { start: ws, days: {} };
+                const dayKey = d.toDateString();
+                if (!weeks[key].days[dayKey]) weeks[key].days[dayKey] = { date: d, sessions: [] };
+                weeks[key].days[dayKey].sessions.push(rec);
+            });
+
+            let html = '';
+            const weekKeys = Object.keys(weeks).sort((a, b) => new Date(b) - new Date(a));
+
+            weekKeys.forEach((wk, idx) => {
+                const week = weeks[wk];
+                const weekEnd = new Date(week.start);
+                weekEnd.setDate(weekEnd.getDate() + 6);
+                const weekTotal = Object.values(week.days).reduce((sum, day) => {
+                    return sum + day.sessions.reduce((s, sess) => s + (sess.duration || 0), 0);
+                }, 0);
+
+                html += `
+                    <div class="week-group" style="animation-delay: ${idx * 0.1}s">
+                        <div class="week-header">
+                            <span class="week-header-title">Semana ${fmtShortDate(week.start)} - ${fmtShortDate(weekEnd)}</span>
+                            <span class="week-header-total">${fmtDur(weekTotal)}</span>
+                        </div>
+                `;
+
+                const dayKeys = Object.keys(week.days).sort((a, b) => new Date(b) - new Date(a));
+                dayKeys.forEach(dk => {
+                    const day = week.days[dk];
+                    const dayTotal = day.sessions.reduce((s, sess) => s + (sess.duration || 0), 0);
+                    const isToday = dk === new Date().toDateString();
+                    const dayId = 'day_' + dk.replace(/\s/g, '_');
+
+                    html += `
+                        <div class="day-card">
+                            <div class="day-header" onclick="toggleDay('${dayId}', this)">
+                                <div class="day-info">
+                                    <div class="day-badge" style="${isToday ? 'background:linear-gradient(135deg, rgba(245,158,11,0.3), rgba(245,158,11,0.1)); color:var(--warning); border:1px solid rgba(245,158,11,0.3)' : ''}">
+                                        <div class="day-badge-num">${day.date.getDate()}</div>
+                                        <div class="day-badge-name">${day.date.toLocaleDateString('es-ES',{weekday:'short'})}</div>
+                                    </div>
+                                    <div>
+                                        <div class="day-title">${day.date.toLocaleDateString('es-ES',{weekday:'long'})}</div>
+                                        <div class="day-subtitle">${day.sessions.length} sesión${day.sessions.length>1?'es':''}</div>
+                                    </div>
+                                </div>
+                                <div class="day-total">${fmtDur(dayTotal)}</div>
+                            </div>
+                            <div class="day-sessions" id="${dayId}">
+                    `;
+
+                    day.sessions.forEach(sess => {
+                        const inTime = fmtTime(new Date(sess.clockIn));
+                        const outTime = sess.clockOut ? fmtTime(new Date(sess.clockOut)) : 'En curso';
+                        const dur = sess.duration ? fmtDur(sess.duration) : fmtDur(new Date() - new Date(sess.clockIn));
+                        html += `
+                            <div class="session-row">
+                                <div class="session-times">
+                                    <span>${inTime}</span>
+                                    <span class="arrow">→</span>
+                                    <span>${outTime}</span>
+                                </div>
+                                <div class="session-dur">${dur}</div>
+                            </div>
+                        `;
+                    });
+
+                    html += `</div></div>`;
+                });
+
+                html += `</div>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function toggleDay(id, header) {
+            const el = document.getElementById(id);
+            const isOpen = el.classList.contains('open');
+            
+            // Close all others
+            document.querySelectorAll('.day-sessions.open').forEach(s => {
+                s.classList.remove('open');
+                s.previousElementSibling.classList.remove('active');
+            });
+            
+            if (!isOpen) {
+                el.classList.add('open');
+                header.classList.add('active');
+            }
+        }
+
+        // =========================
+        // REPORT
+        // =========================
+        function renderReport() {
+            const now = new Date();
+            const ws = weekStart(now);
+            const we = new Date(ws); we.setDate(we.getDate() + 6);
+
+            let text = `📊 RESUMEN SEMANAL\n`;
+            text += `📅 ${fmtLongDate(ws)} - ${fmtLongDate(we)}\n`;
+            text += `━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+
+            const dayNames = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+            const dayHours = new Array(7).fill(0);
+            let total = 0;
+
+            records.forEach(r => {
+                if (!r.completed) return;
+                const d = new Date(r.date);
+                if (weekStart(d).getTime() === ws.getTime()) {
+                    dayHours[d.getDay()] += r.duration;
+                    total += r.duration;
+                }
+            });
+
+            if (activeSession) {
+                const d = new Date(activeSession.date);
+                if (weekStart(d).getTime() === ws.getTime()) {
+                    const elapsed = new Date() - new Date(activeSession.clockIn);
+                    dayHours[d.getDay()] += elapsed;
+                    total += elapsed;
+                }
+            }
+
+            for (let i = 1; i <= 7; i++) {
+                const idx = i % 7;
+                const h = dayHours[idx];
+                text += `• ${dayNames[idx]}: ${h > 0 ? fmtDur(h) : 'Sin registro'}\n`;
+            }
+
+            text += `\n━━━━━━━━━━━━━━━━━━━━━━\n`;
+            text += `⏱️ TOTAL SEMANAL: ${fmtDur(total)}\n`;
+            text += `📱 TimeTrack Pro Enterprise`;
+
+            document.getElementById('reportText').value = text;
+        }
+
+        function sendReport() {
+            const phone = document.getElementById('phoneInput').value.replace(/[^\d+]/g, '');
+            if (!phone.startsWith('+')) { toast('Incluye código de país (ej: +1)', 'err'); return; }
+            const msg = encodeURIComponent(document.getElementById('reportText').value);
+            window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+            toast('Abriendo WhatsApp...', 'ok');
+        }
+
+        // =========================
+        // RESET
+        // =========================
+        function confirmReset() {
+            showModal('Borrar todos los datos', '¿Estás seguro? Esta acción eliminará permanentemente todo el historial y no se puede deshacer.', () => {
+                records = []; activeSession = null;
+                saveRecords(); saveSession(); renderAll();
+                toast('Todos los datos han sido eliminados', 'info'); 
+                closeModal();
+            });
+        }
+
+        // =========================
+        // NAVIGATION
+        // =========================
+        function switchView(name) {
+            document.querySelectorAll('.view').forEach(v => {
+                v.classList.remove('active');
+                v.style.animation = 'none';
+                setTimeout(() => v.style.animation = '', 10);
+            });
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            const viewEl = document.getElementById('view' + name.charAt(0).toUpperCase() + name.slice(1));
+            viewEl.classList.add('active');
+            document.querySelector(`.nav-item[data-view="${name}"]`).classList.add('active');
+            
+            if (name === 'report') renderReport();
+            if (name === 'history') renderHistory();
+        }
+
+        // =========================
+        // UTILS
+        // =========================
+        function weekStart(d) {
+            const date = new Date(d);
+            const day = date.getDay();
+            const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+            const ws = new Date(date.setDate(diff));
+            ws.setHours(0,0,0,0);
+            return ws;
+        }
+        
+        function fmtTime(d) {
+            return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: true });
+        }
+        
+        function fmtDur(ms) {
+            const s = Math.floor(ms / 1000);
+            const h = Math.floor(s / 3600);
+            const m = Math.floor((s % 3600) / 60);
+            if (h === 0) return `${m}m`;
+            return `${h}h ${m}m`;
+        }
+        
+        function fmtDurFull(ms) {
+            const s = Math.floor(ms / 1000);
+            const h = Math.floor(s / 3600);
+            const m = Math.floor((s % 3600) / 60);
+            const sec = s % 60;
+            return `${pad(h)}:${pad(m)}:${pad(sec)}`;
+        }
+        
+        function fmtShortDate(d) {
+            return d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
+        }
+        
+        function fmtLongDate(d) {
+            return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'long' });
+        }
+        
+        function pad(n) { return String(n).padStart(2, '0'); }
+        function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+
+        // =========================
+        // TOAST & MODAL
+        // =========================
+        function toast(msg, type) {
+            const c = document.getElementById('toasts');
+            const t = document.createElement('div');
+            t.className = 'toast ' + (type === 'ok' ? 'ok' : type === 'err' ? 'err' : 'info');
+            const icon = type === 'ok' ? '✓' : type === 'err' ? '✕' : 'ℹ';
+            t.innerHTML = `<span style="font-size:1.2rem">${icon}</span><span>${msg}</span>`;
+            c.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+        
+        function showModal(title, text, onOk) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalText').textContent = text;
+            document.getElementById('modalOk').onclick = onOk;
+            document.getElementById('modal').classList.add('show');
+        }
+        
+        function closeModal() { 
+            document.getElementById('modal').classList.remove('show'); 
+        }
+    </script>
+</body>
+</html>
